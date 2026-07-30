@@ -6,6 +6,49 @@
 
 ---
 
+## ⚡ 一键安装（推荐）
+
+只需一行命令，跑完即可通过网页启停 sshx 远程终端：
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/VastFuture/hanhai-nas/main/install.sh | bash
+```
+
+> 需要 root 权限（`sudo`）与 systemd 环境。脚本会自动检测并安装缺失的 `curl` / `python3` / `sshx`。
+
+### 安装选项
+
+| 参数 | 说明 |
+|------|------|
+| `--with-opencode` | 同时安装 opencode（AI 编程服务） |
+| `--no-opencode` | 明确跳过 opencode（sshx 控制不受影响） |
+| `--install-dir DIR` | 安装目录（默认 `/opt/hanhai-nas`） |
+| `--port N` | 控制台端口（默认 `3211`） |
+| `--opencode-port N` | opencode 服务端口（默认 `3210`） |
+
+**opencode 的选择逻辑：**
+- 不带参数 + 交互终端：会询问 `[y/N]`
+- 不带参数 + `curl|bash` 非交互模式：**默认不装**（仅装控制台 + sshx）
+- 系统已装 opencode：自动纳入管理（可用 `--no-opencode` 强制排除）
+
+下载到本地再运行（便于传参 / 查看源码）：
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/VastFuture/hanhai-nas/main/install.sh -o install.sh
+bash install.sh --no-opencode --port 3211
+```
+
+### 安装后
+
+1. 浏览器打开脚本输出的地址（如 `http://<NAS-IP>:3211/`）
+2. 在 **sshx 区** 点「启动」→ 生成端到端加密的终端地址
+3. 点「直达」在新窗口进入终端，或「复制地址」分享
+
+> sshx 默认**不开机自启**，需在网页手动启动；如需开机自启：`sudo systemctl enable sshx`。
+> 卸载见文末 [卸载](#-卸载) 章节。
+
+---
+
 ## ✨ 功能特性
 
 ### 控制台核心
@@ -65,6 +108,7 @@
 
 ```
 hanhai-nas/
+├── install.sh                # ⚡ 一键安装脚本（推荐入口）
 ├── server.py                 # Python 后端（标准库，零依赖）
 ├── public/
 │   └── index.html            # 前端单页（内嵌 CSS/JS/Canvas/SVG）
@@ -78,14 +122,16 @@ hanhai-nas/
 
 ---
 
-## 🚀 快速开始
+## 🛠 手动安装（进阶）
+
+> 大多数用户请直接使用 [⚡ 一键安装](#-一键安装推荐)。本节供希望手工控制每一步、或在无外网环境下离线部署的用户参考。
 
 ### 1. 前置条件
 
-- Linux + systemd（本项目的开发/运行环境为飞牛 NAS / `FE-NAS`）
+- Linux + systemd（开发/运行环境为飞牛 NAS / `FE-NAS`）
 - Python 3.8+（无需 pip，纯标准库）
 - root 权限（控制 systemd 服务所需）
-- 已安装 `opencode` CLI（业务服务，位于 `/usr/local/bin/opencode`）
+- `curl`、`sshx`（见下）
 - 联网（sshx 需出站连接 `sshx.io`）
 
 ### 2. 安装 sshx
@@ -101,9 +147,9 @@ curl -sSf https://sshx.io/get | sh
 git clone https://github.com/VastFuture/hanhai-nas.git
 cd hanhai-nas
 
-# 安装到 /root/opencode-work/hanhai（或自定义路径，需同步修改 unit 的 WorkingDirectory）
-sudo mkdir -p /root/opencode-work/hanhai
-sudo cp server.py public/ -r /root/opencode-work/hanhai/
+# 安装到 /opt/hanhai-nas（或自定义路径，需同步修改 unit 的 WorkingDirectory）
+sudo mkdir -p /opt/hanhai-nas
+sudo cp server.py public/ -r /opt/hanhai-nas/
 
 # 安装 sshx 包装器
 sudo cp deploy/sshx-hanhai.sh /usr/local/bin/
@@ -122,9 +168,9 @@ sudo systemctl enable sshx    # 如希望开机自启，取消注释
 
 打开浏览器访问 `http://<NAS-IP>:3211/`。
 
-### 4. 业务服务 opencode-web
+### 4. 业务服务 opencode-web（可选）
 
-`opencode-web.service` 是被管理的 AI 编程服务，按需调整 `ExecStart` 路径与代理环境变量后启用：
+`opencode-web.service` 是被管理的 AI 编程服务。若需联网代理（如 mihomo），请在 unit 的 `[Service]` 段补充 `Environment=HTTPS_PROXY=...`；按需调整 `ExecStart` 路径后启用：
 
 ```bash
 sudo systemctl enable --now opencode-web
@@ -286,6 +332,22 @@ systemctl enable sshx          # 恢复开机自启
 systemctl disable sshx         # 关闭开机自启
 cat /run/sshx-url              # 查看当前会话地址
 ```
+
+---
+
+## 🧹 卸载
+
+```bash
+# 停止并禁用服务
+sudo systemctl disable --now hanhai sshx opencode-web 2>/dev/null
+
+# 删除安装产物（路径以实际安装为准，默认如下）
+sudo rm -rf /opt/hanhai-nas /usr/local/bin/sshx-hanhai.sh
+sudo rm -f /etc/systemd/system/{hanhai,sshx,opencode-web}.service
+sudo systemctl daemon-reload
+```
+
+> 卸载不会移除 `sshx` / `opencode` 二进制本身（它们由各自的官方安装器安装）。如需一并删除，请参考其官方文档。
 
 ---
 
