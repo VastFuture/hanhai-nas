@@ -1,0 +1,17 @@
+[Unit]
+Description=Hanhai Future Control Hub
+Documentation=https://localhost:3211
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/root/opencode-work/hanhai
+ExecStart=/usr/bin/python3 -u /root/opencode-work/hanhai/server.py
+Restart=always
+RestartSec=3
+Environment=OPENCODE_SERVICE=opencode-web
+Environment=HANHAI_PORT=3211
+
+[Install]
+WantedBy=multi-user.target

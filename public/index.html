@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>瀚海未来 · Hanhai Future</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3CradialGradient id='g' cx='35%25' cy='35%25'%3E%3Cstop offset='0' stop-color='%2300ffe0'/%3E%3Cstop offset='0.5' stop-color='%2300d4ff'/%3E%3Cstop offset='1' stop-color='%237b2ff7'/%3E%3C/radialGradient%3E%3C/defs%3E%3Ccircle cx='32' cy='32' r='30' fill='url(%23g)'/%3E%3Cpath d='M32 12 C32 12 46 30 46 41 A14 14 0 0 1 18 41 C18 30 32 12 32 12 Z' fill='%23fff' opacity='0.92'/%3E%3Ccircle cx='27' cy='37' r='3.2' fill='%2300b4d8'/%3E%3C/svg%3E">
+<style>
+:root{
+  --bg-0:#04070f; --bg-1:#0a1628; --bg-2:#160a2e;
+  --cyan:#00e0ff; --cyan-soft:#00ffd5; --purple:#8b5cf6; --pink:#c026d3;
+  --gold:#ffd166; --red:#ff4d6d; --green:#00f5a0; --gray:#5b6b85;
+  --text:#dbeafe; --text-dim:#7e8ba8;
+  --glass:rgba(12,22,42,.55); --glass-brd:rgba(120,180,255,.14);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%}
+body{
+  font-family:"PingFang SC","Microsoft YaHei","Source Han Sans SC","Noto Sans CJK SC",-apple-system,sans-serif;
+  background:var(--bg-0); color:var(--text);
+  min-height:100vh; overflow-x:hidden; position:relative;
+  -webkit-font-smoothing:antialiased;
+}
+#bg{position:fixed; inset:0; z-index:0; display:block}
+.vignette{
+  position:fixed; inset:0; z-index:1; pointer-events:none;
+  background:
+    radial-gradient(ellipse at 20% 0%, rgba(0,224,255,.10), transparent 50%),
+    radial-gradient(ellipse at 80% 100%, rgba(139,92,246,.12), transparent 50%),
+    radial-gradient(ellipse at 50% 50%, transparent 30%, rgba(2,4,10,.65) 100%);
+}
+.container{
+  position:relative; z-index:2;
+  max-width:680px; margin:0 auto;
+  padding:clamp(28px,6vw,64px) 20px 40px;
+  display:flex; flex-direction:column; align-items:center; gap:26px;
+}
+
+/* ===== Header ===== */
+.header{text-align:center; animation:fadeUp .9s ease both}
+.logo-badge{
+  width:60px; height:60px; margin:0 auto 16px; border-radius:18px;
+  background:linear-gradient(135deg,rgba(0,224,255,.18),rgba(139,92,246,.18));
+  border:1px solid var(--glass-brd);
+  display:grid; place-items:center;
+  box-shadow:0 8px 30px rgba(0,224,255,.25), inset 0 0 20px rgba(0,224,255,.08);
+  backdrop-filter:blur(10px);
+}
+.logo-badge svg{width:34px;height:34px;filter:drop-shadow(0 0 6px rgba(0,224,255,.7))}
+.title{
+  font-size:clamp(2.4rem,7vw,3.6rem);
+  font-weight:200; letter-spacing:.32em; line-height:1.1;
+  background:linear-gradient(120deg,#00ffe0 0%,#00d4ff 28%,#b537f2 65%,#8b5cf6 100%);
+  -webkit-background-clip:text; background-clip:text; color:transparent;
+  padding-left:.32em;
+  text-shadow:0 0 40px rgba(0,224,255,.25);
+}
+.subtitle{
+  margin-top:12px; font-size:.72rem; letter-spacing:.42em;
+  color:var(--text-dim); text-transform:uppercase; font-weight:300;
+  padding-left:.42em;
+}
+.subtitle .sep{margin:0 10px; color:var(--cyan); opacity:.6}
+
+/* ===== Card ===== */
+.card{
+  width:100%; position:relative; border-radius:26px;
+  background:var(--glass); backdrop-filter:blur(22px) saturate(1.2);
+  -webkit-backdrop-filter:blur(22px) saturate(1.2);
+  box-shadow:0 20px 60px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.06);
+}
+.card::before{
+  content:""; position:absolute; inset:0; border-radius:26px; padding:1px;
+  background:linear-gradient(135deg,rgba(0,224,255,.55),rgba(139,92,246,.35) 50%,rgba(192,38,211,.4));
+  -webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);
+  -webkit-mask-composite:xor; mask-composite:exclude; pointer-events:none;
+}
+
+/* ===== Status Card ===== */
+.status-card{
+  padding:40px 28px 30px; text-align:center;
+  display:flex; flex-direction:column; align-items:center; gap:8px;
+  animation:fadeUp 1s .15s ease both;
+}
+.orb-wrap{
+  position:relative; width:150px; height:150px;
+  display:grid; place-items:center; margin-bottom:6px;
+}
+.ring{
+  position:absolute; inset:-6px; border-radius:50%;
+  border:1.5px solid transparent; pointer-events:none;
+}
+.ring.r1{ border-top-color:var(--c,#5b6b85); border-right-color:var(--c,#5b6b85); opacity:.85;
+  animation:spin 4s linear infinite; }
+.ring.r2{ inset:8px; border-bottom-color:var(--c,#5b6b85); border-left-color:var(--c,#5b6b85); opacity:.45;
+  animation:spin 6s linear infinite reverse; }
+.orb{
+  --c:#5b6b85;
+  width:108px; height:108px; border-radius:50%;
+  background:
+    radial-gradient(circle at 32% 28%,rgba(255,255,255,.55),transparent 40%),
+    radial-gradient(circle at 50% 50%,var(--c) 0%,rgba(0,0,0,.4) 100%);
+  box-shadow:0 0 0 1px rgba(255,255,255,.08), 0 0 55px var(--c), inset 0 -10px 25px rgba(0,0,0,.4);
+  animation:breathe 2.6s ease-in-out infinite;
+  transition:--c .6s;
+}
+.orb[data-state="active"]{ --c:var(--green) }
+.orb[data-state="inactive"]{ --c:#3b4761 }
+.orb[data-state="failed"]{ --c:var(--red) }
+.orb[data-state="activating"],.orb[data-state="deactivating"]{ --c:var(--gold) }
+.orb[data-state="loading"]{ --c:var(--cyan) }
+@keyframes breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.045)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.service-name{
+  font-size:1.5rem; font-weight:300; letter-spacing:.18em;
+  color:#fff; margin-top:8px;
+}
+.state-row{
+  font-size:.92rem; letter-spacing:.08em; margin-top:4px;
+  display:inline-flex; align-items:center; gap:8px;
+}
+.state-dot{width:8px;height:8px;border-radius:50%;background:var(--gray);box-shadow:0 0 10px currentColor}
+.state-row[data-state="active"] .state-dot,.state-row[data-state="active"]{color:var(--green)}
+.state-row[data-state="active"] .state-dot{background:var(--green)}
+.state-row[data-state="inactive"],.state-row[data-state="inactive"] .state-dot{color:var(--text-dim)}
+.state-row[data-state="failed"],.state-row[data-state="failed"] .state-dot{color:var(--red)}
+.state-row[data-state="failed"] .state-dot{background:var(--red)}
+.state-label{font-weight:500}
+
+.meta{
+  display:flex; gap:10px; margin-top:22px; flex-wrap:wrap; justify-content:center;
+}
+.meta-item{
+  display:flex; flex-direction:column; align-items:center; gap:4px;
+  padding:12px 20px; min-width:96px; border-radius:14px;
+  background:rgba(255,255,255,.035); border:1px solid rgba(255,255,255,.06);
+}
+.meta-item i{font-style:normal;font-size:.66rem;letter-spacing:.22em;color:var(--text-dim);text-transform:uppercase}
+.meta-item b{font-size:1.05rem;font-weight:500;color:#fff;font-variant-numeric:tabular-nums}
+.port-pill{
+  margin-top:18px; font-size:.74rem; letter-spacing:.18em; color:var(--cyan);
+  padding:6px 16px; border-radius:999px;
+  background:rgba(0,224,255,.08); border:1px solid rgba(0,224,255,.25);
+}
+
+/* ===== Controls ===== */
+.controls{
+  width:100%; display:grid; grid-template-columns:repeat(3,1fr); gap:12px;
+  animation:fadeUp 1s .3s ease both;
+}
+.btn{
+  position:relative; border:none; cursor:pointer; overflow:hidden;
+  padding:15px 10px; border-radius:16px;
+  font-family:inherit; font-size:.98rem; font-weight:500; letter-spacing:.08em;
+  color:#fff; display:flex; flex-direction:column; align-items:center; gap:7px;
+  transition:transform .25s cubic-bezier(.2,.8,.2,1), box-shadow .25s, filter .25s;
+  background:rgba(20,32,54,.6); border:1px solid var(--glass-brd);
+  backdrop-filter:blur(10px);
+}
+.btn svg{width:20px;height:20px}
+.btn::after{
+  content:""; position:absolute; inset:0; opacity:0; transition:opacity .3s;
+  background:linear-gradient(135deg,rgba(255,255,255,.18),transparent 60%);
+}
+.btn:hover:not(:disabled){transform:translateY(-3px)}
+.btn:hover:not(:disabled)::after{opacity:1}
+.btn:active:not(:disabled){transform:translateY(-1px) scale(.98)}
+.btn:disabled{opacity:.45;cursor:wait}
+.btn.start:hover:not(:disabled){box-shadow:0 10px 34px rgba(0,245,160,.4);border-color:rgba(0,245,160,.6);color:var(--green-soft,#bff)}
+.btn.stop:hover:not(:disabled){box-shadow:0 10px 34px rgba(255,77,109,.4);border-color:rgba(255,77,109,.6)}
+.btn.restart:hover:not(:disabled){box-shadow:0 10px 34px rgba(0,224,255,.4);border-color:rgba(0,224,255,.6)}
+.spinner{
+  width:18px;height:18px;border-radius:50%;
+  border:2px solid rgba(255,255,255,.25);border-top-color:#fff;
+  animation:spin .8s linear infinite; display:none;
+}
+.btn.loading .ico{display:none}
+.btn.loading .spinner{display:block}
+
+/* ===== Detail ===== */
+.detail{padding:0;overflow:hidden;animation:fadeUp 1s .45s ease both}
+.detail-head{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:18px 24px; cursor:pointer; user-select:none;
+  font-size:.9rem; letter-spacing:.06em; color:var(--text);
+}
+.detail-head .lab{display:flex;align-items:center;gap:10px}
+.detail-head .lab i{
+  width:8px;height:8px;border-radius:50%;background:var(--cyan);
+  box-shadow:0 0 10px var(--cyan); animation:breathe 1.8s infinite;
+}
+.chev{transition:transform .3s;color:var(--text-dim)}
+.detail.open .chev{transform:rotate(180deg)}
+.detail-body{
+  max-height:0; overflow:hidden; transition:max-height .4s ease;
+  background:rgba(0,0,0,.28);
+}
+.detail.open .detail-body{max-height:420px}
+.detail-body pre{
+  margin:0; padding:18px 24px; font-family:"SF Mono",Menlo,Consolas,monospace;
+  font-size:.78rem; line-height:1.6; color:#9fdcff; white-space:pre-wrap;
+  word-break:break-word; max-height:400px; overflow:auto;
+}
+.detail-body pre::-webkit-scrollbar{width:6px}
+.detail-body pre::-webkit-scrollbar-thumb{background:rgba(0,224,255,.3);border-radius:3px}
+
+/* ===== sshx Card ===== */
+.sshx-card{padding:24px 26px;animation:fadeUp 1s .55s ease both}
+.sshx-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.sshx-title{
+  display:flex;align-items:center;gap:10px;
+  font-size:1.05rem;font-weight:300;letter-spacing:.14em;color:#fff;
+}
+.sshx-title svg{width:20px;height:20px;color:var(--cyan);filter:drop-shadow(0 0 5px rgba(0,224,255,.5))}
+.sshx-state{
+  display:inline-flex;align-items:center;gap:7px;
+  font-size:.82rem;letter-spacing:.06em;color:var(--text-dim);
+}
+.sshx-state .sd{width:8px;height:8px;border-radius:50%;background:var(--gray);box-shadow:0 0 10px currentColor}
+.sshx-state[data-state="active"]{color:var(--green)}
+.sshx-state[data-state="active"] .sd{background:var(--green)}
+.sshx-state[data-state="inactive"]{color:var(--text-dim)}
+.sshx-state[data-state="failed"]{color:var(--red)}
+.sshx-state[data-state="failed"] .sd{background:var(--red)}
+.sshx-state[data-state="activating"],.sshx-state[data-state="loading"]{color:var(--gold)}
+.sshx-state[data-state="activating"] .sd,.sshx-state[data-state="loading"] .sd{background:var(--gold)}
+
+.sshx-url-wrap{
+  margin:16px 0 6px;display:flex;align-items:center;gap:10px;
+  padding:12px 14px;border-radius:12px;
+  background:rgba(0,0,0,.32);border:1px solid rgba(120,180,255,.1);
+}
+.sshx-url-wrap .lk{
+  flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  font-family:"SF Mono",Menlo,Consolas,monospace;font-size:.82rem;
+  color:var(--cyan-soft);text-decoration:none;letter-spacing:.02em;
+}
+.sshx-url-wrap .lk:hover{text-decoration:underline}
+.sshx-url-wrap .lk.empty{color:var(--text-dim);font-style:italic;pointer-events:none}
+.sshx-url-wrap .badge{
+  flex:none;font-size:.62rem;letter-spacing:.14em;color:var(--text-dim);
+  padding:3px 8px;border-radius:6px;background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.06);
+}
+
+.sshx-controls{
+  width:100%;display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px;
+}
+.sshx-row2{
+  width:100%;display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:10px;
+}
+.btn-mini{
+  position:relative;border:none;cursor:pointer;overflow:hidden;
+  padding:12px 10px;border-radius:13px;
+  font-family:inherit;font-size:.9rem;font-weight:500;letter-spacing:.06em;
+  color:#fff;display:flex;align-items:center;justify-content:center;gap:7px;
+  transition:transform .25s cubic-bezier(.2,.8,.2,1),box-shadow .25s,border-color .25s;
+  background:rgba(20,32,54,.6);border:1px solid var(--glass-brd);
+  backdrop-filter:blur(10px);
+}
+.btn-mini svg{width:17px;height:17px}
+.btn-mini:hover:not(:disabled){transform:translateY(-2px)}
+.btn-mini:active:not(:disabled){transform:translateY(0) scale(.98)}
+.btn-mini:disabled{opacity:.4;cursor:not-allowed}
+.btn-mini.copy:hover:not(:disabled){box-shadow:0 8px 26px rgba(0,224,255,.32);border-color:rgba(0,224,255,.55)}
+.btn-mini.goto{background:linear-gradient(135deg,rgba(0,224,255,.22),rgba(139,92,246,.22));border-color:rgba(0,224,255,.4)}
+.btn-mini.goto:hover:not(:disabled){box-shadow:0 8px 30px rgba(139,92,246,.45);border-color:rgba(139,92,246,.7);transform:translateY(-2px)}
+.btn-mini.start:hover:not(:disabled){box-shadow:0 8px 26px rgba(0,245,160,.35);border-color:rgba(0,245,160,.6)}
+.btn-mini.restart:hover:not(:disabled){box-shadow:0 8px 26px rgba(0,224,255,.35);border-color:rgba(0,224,255,.6)}
+.btn-mini.stop:hover:not(:disabled){box-shadow:0 8px 26px rgba(255,77,109,.35);border-color:rgba(255,77,109,.6)}
+.btn-mini.loading{pointer-events:none}
+.btn-mini.loading svg{display:none}
+.btn-mini.loading::after{
+  content:"";width:16px;height:16px;border-radius:50%;
+  border:2px solid rgba(255,255,255,.25);border-top-color:#fff;
+  animation:spin .8s linear infinite;
+}
+
+/* sshx 实时状态输出(内嵌折叠面板) */
+.sshx-detail{margin-top:16px;border-top:1px solid rgba(120,180,255,.1);overflow:hidden}
+.sshx-detail .dh{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:12px 2px 10px;cursor:pointer;user-select:none;
+  font-size:.82rem;letter-spacing:.06em;color:var(--text);
+}
+.sshx-detail .dh .lab{display:flex;align-items:center;gap:10px}
+.sshx-detail .dh .lab i{
+  width:7px;height:7px;border-radius:50%;background:var(--cyan);
+  box-shadow:0 0 10px var(--cyan);animation:breathe 1.8s infinite;
+}
+.sshx-detail .db{
+  max-height:0;overflow:hidden;transition:max-height .4s ease;
+  background:rgba(0,0,0,.28);border-radius:10px;
+}
+.sshx-detail.open .db{max-height:360px}
+.sshx-detail .db pre{
+  margin:0;padding:14px 16px;font-family:"SF Mono",Menlo,Consolas,monospace;
+  font-size:.74rem;line-height:1.55;color:#9fdcff;white-space:pre-wrap;
+  word-break:break-word;max-height:340px;overflow:auto;
+}
+.sshx-detail .db pre::-webkit-scrollbar{width:6px}
+.sshx-detail .db pre::-webkit-scrollbar-thumb{background:rgba(0,224,255,.3);border-radius:3px}
+
+/* ===== Footer ===== */
+.footer{
+  margin-top:6px; font-size:.74rem; color:var(--text-dim);
+  letter-spacing:.14em; display:flex; align-items:center; gap:10px;
+  animation:fadeUp 1s .6s ease both;
+}
+.footer .dot{color:var(--cyan);opacity:.5}
+
+/* ===== Toast ===== */
+.toast{
+  position:fixed; left:50%; bottom:36px; transform:translate(-50%,40px);
+  padding:13px 26px; border-radius:14px; font-size:.9rem; letter-spacing:.04em;
+  background:rgba(10,20,38,.92); backdrop-filter:blur(14px);
+  border:1px solid var(--glass-brd); color:#fff; z-index:50;
+  opacity:0; pointer-events:none; transition:all .35s cubic-bezier(.2,.8,.2,1);
+  box-shadow:0 14px 40px rgba(0,0,0,.5);
+  display:flex;align-items:center;gap:10px;max-width:90vw;
+}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+.toast .ico{width:18px;height:18px;flex:none}
+.toast.ok{border-color:rgba(0,245,160,.5)}
+.toast.ok .ico{color:var(--green)}
+.toast.err{border-color:rgba(255,77,109,.5)}
+.toast.err .ico{color:var(--red)}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+
+@media (max-width:520px){
+  .meta{gap:8px}
+  .meta-item{min-width:80px;padding:10px 14px}
+  .controls{gap:8px}
+  .btn{font-size:.88rem;padding:13px 6px}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.001s!important}
+}
+</style>
+</head>
+<body>
+<canvas id="bg"></canvas>
+<div class="vignette"></div>
+
+<main class="container">
+  <header class="header">
+    <div class="logo-badge">
+      <svg viewBox="0 0 64 64" fill="none">
+        <defs>
+          <linearGradient id="lg" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#00ffe0"/>
+            <stop offset="1" stop-color="#8b5cf6"/>
+          </linearGradient>
+        </defs>
+        <path d="M32 8 C32 8 48 28 48 40 A16 16 0 0 1 16 40 C16 28 32 8 32 8 Z" fill="url(#lg)"/>
+        <path d="M24 40 Q32 50 40 40" stroke="#fff" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+        <circle cx="27" cy="35" r="3" fill="#fff" opacity=".9"/>
+      </svg>
+    </div>
+    <h1 class="title">瀚海未来</h1>
+    <p class="subtitle">Hanhai Future<span class="sep">·</span>Control Hub</p>
+  </header>
+
+  <section class="card status-card">
+    <div class="orb-wrap">
+      <div class="ring r1"></div>
+      <div class="ring r2"></div>
+      <div class="orb" id="orb" data-state="loading"></div>
+    </div>
+    <div class="service-name" id="svcName">opencode-web</div>
+    <div class="state-row" id="stateRow" data-state="loading">
+      <span class="state-dot"></span>
+      <span class="state-label" id="stateLabel">正在连接星海…</span>
+    </div>
+    <div class="meta">
+      <div class="meta-item"><i>PID</i><b id="pid">—</b></div>
+      <div class="meta-item"><i>Uptime</i><b id="uptime">—</b></div>
+      <div class="meta-item"><i>Load</i><b id="load">—</b></div>
+    </div>
+    <div class="port-pill">服务端口 : 3211</div>
+  </section>
+
+  <section class="controls">
+    <button class="btn start" data-action="start" aria-label="启动 opencode">
+      <span class="ico"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.14v13.72a1 1 0 0 0 1.54.84l10.3-6.86a1 1 0 0 0 0-1.68L9.54 4.3A1 1 0 0 0 8 5.14Z"/></svg></span>
+      <span class="spinner"></span>
+      <span class="t">启动</span>
+    </button>
+    <button class="btn restart" data-action="restart" aria-label="重启 opencode">
+      <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg></span>
+      <span class="spinner"></span>
+      <span class="t">重启</span>
+    </button>
+    <button class="btn stop" data-action="stop" aria-label="停止 opencode">
+      <span class="ico"><svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="1.5"/></svg></span>
+      <span class="spinner"></span>
+      <span class="t">停止</span>
+    </button>
+  </section>
+
+  <section class="card detail" id="detail">
+    <div class="detail-head" id="detailHead">
+      <span class="lab"><i></i>实时状态输出</span>
+      <svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="m6 9 6 6 6-6"/></svg>
+    </div>
+    <div class="detail-body"><pre id="detailBody">等待获取 systemctl 状态…</pre></div>
+  </section>
+
+  <section class="card sshx-card">
+    <div class="sshx-head">
+      <span class="sshx-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+        sshx · 远程终端
+      </span>
+      <span class="sshx-state" id="sshxState" data-state="loading">
+        <span class="sd"></span>
+        <span id="sshxStateLabel">连接中…</span>
+      </span>
+    </div>
+    <div class="sshx-url-wrap">
+      <a id="sshxLink" class="lk empty" href="#" target="_blank" rel="noopener">等待生成访问地址…</a>
+      <span class="badge" id="sshxBadge">sshx.io</span>
+    </div>
+    <div class="sshx-controls">
+      <button class="btn-mini copy" id="sshxCopy" aria-label="复制 sshx 地址">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        复制地址
+      </button>
+      <button class="btn-mini goto" id="sshxGoto" aria-label="新窗口打开 sshx">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        直达
+      </button>
+    </div>
+    <div class="sshx-row2">
+      <button class="btn-mini start" data-action="sshx-start" aria-label="启动 sshx">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.14v13.72a1 1 0 0 0 1.54.84l10.3-6.86a1 1 0 0 0 0-1.68L9.54 4.3A1 1 0 0 0 8 5.14Z"/></svg>
+        启动
+      </button>
+      <button class="btn-mini restart" data-action="sshx-restart" aria-label="重启 sshx">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>
+        重启
+      </button>
+      <button class="btn-mini stop" data-action="sshx-stop" aria-label="停止 sshx">
+        <svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="1.5"/></svg>
+        停止
+      </button>
+    </div>
+    <div class="sshx-detail" id="sshxDetail">
+      <div class="dh" id="sshxDetailHead">
+        <span class="lab"><i></i>实时状态输出</span>
+        <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="m6 9 6 6 6-6"/></svg>
+      </div>
+      <div class="db"><pre id="sshxDetailBody">等待获取 sshx 状态…</pre></div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <span>瀚海未来 · 探索无垠</span>
+    <span class="dot">●</span>
+    <span id="clock">--:--:--</span>
+  </footer>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const API = '';
+const $ = (id) => document.getElementById(id);
+const STATE_TEXT = {
+  active:'运行中 · ACTIVE', inactive:'已停止 · INACTIVE', failed:'已失败 · FAILED',
+  activating:'启动中…', deactivating:'停止中…', loading:'正在连接星海…', unknown:'未知状态'
+};
+
+async function api(path, method='GET'){
+  const ctrl = new AbortController();
+  const t = setTimeout(()=>ctrl.abort(), 12000);
+  try{
+    const r = await fetch(API+path, {method, signal:ctrl.signal});
+    return await r.json();
+  } finally { clearTimeout(t); }
+}
+
+function fmtUptime(sec){
+  if(!sec) return '—';
+  const d=new Date(); const now=Math.floor(d.getTime()/1000);
+  let s = now - sec;
+  if (s < 0) s = 0;
+  const dys=Math.floor(s/86400), h=Math.floor(s%86400/3600), m=Math.floor(s%3600/60);
+  if(dys>0) return dys+'d '+h+'h';
+  if(h>0) return h+'h '+m+'m';
+  return m+'m';
+}
+
+let lastEnterSec=null, uptimeTimer=null;
+function startUptimeTicker(){
+  if(uptimeTimer) return;
+  uptimeTimer=setInterval(()=>{ if(lastEnterSec) $('uptime').textContent=fmtUptime(lastEnterSec); }, 1000);
+}
+
+function applyStatus(s){
+  const orb=$('orb'), row=$('stateRow'), label=$('stateLabel');
+  $('svcName').textContent = s.service || 'opencode-web';
+  const st = s.active ? 'active' : (s.state||'inactive');
+  orb.dataset.state = st;
+  row.dataset.state = st;
+  label.textContent = STATE_TEXT[st] || s.state || '未知';
+  $('pid').textContent = s.pid || '—';
+  $('load').textContent = s.loadState || '—';
+  if(s.activeEnterSec && s.active){ lastEnterSec=s.activeEnterSec; startUptimeTicker(); $('uptime').textContent=fmtUptime(lastEnterSec); }
+  else { lastEnterSec=null; $('uptime').textContent='—'; }
+  if(s.detail){ $('detailBody').textContent = s.detail; }
+  else { $('detailBody').textContent = '（无状态输出）'; }
+  checkLastAction(s);
+}
+
+/* 操作异步执行,轮询真实结果并反馈(失败才提示,成功靠状态球体现) */
+let pendingAction=null;
+function checkLastAction(s){
+  if(!pendingAction) return;
+  if(Date.now()-pendingAction.ts > 90000){ pendingAction=null; return; }
+  const la=s.lastAction;
+  if(!la || !la.op || la.op!==pendingAction.op) return;
+  if(la.ts*1000 < pendingAction.ts) return;
+  const name={start:'启动',stop:'停止',restart:'重启'}[la.op];
+  if(la.ok===false){ toast(name+'失败:'+(la.message||'未知原因'),'err'); }
+  pendingAction=null;
+}
+
+async function refresh(){
+  try{
+    const s = await api('/api/status');
+    applyStatus(s);
+  }catch(e){
+    $('orb').dataset.state='loading';
+    $('stateLabel').textContent='控制台后端未响应';
+    $('detailBody').textContent='无法连接后端服务,请确认 server.js 正在运行。';
+  }
+}
+
+/* Toast */
+let toastT=null;
+function toast(msg, type='ok'){
+  const t=$('toast');
+  const icon = type==='ok'
+    ? '<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>'
+    : '<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>';
+  t.innerHTML = icon + '<span>'+msg+'</span>';
+  t.className='toast '+type+' show';
+  clearTimeout(toastT);
+  toastT=setTimeout(()=>t.classList.remove('show'), 3200);
+}
+
+/* Buttons */
+const busy={};
+document.querySelectorAll('.btn[data-action]').forEach(btn=>{
+  btn.addEventListener('click', async ()=>{
+    const action=btn.dataset.action;
+    if(busy[action]) return;
+    busy[action]=true;
+    btn.classList.add('loading'); btn.disabled=true;
+    const name={start:'启动',stop:'停止',restart:'重启'}[action];
+    try{
+      const r=await api('/api/'+action,'POST');
+      toast(r.message || (name+'完成'), r.ok?'ok':'err');
+      if(r.ok){ pendingAction={op:action, ts:Date.now()}; }
+    }catch(e){
+      toast(name+'请求失败','err');
+    }finally{
+      setTimeout(()=>{
+        btn.classList.remove('loading'); btn.disabled=false; delete busy[action];
+      }, 600);
+      [800,2500,5000,10000,20000,40000,60000].forEach(t=>setTimeout(refresh,t));
+    }
+  });
+});
+
+/* ===== sshx 远程终端 ===== */
+const SSHX_STATE = {
+  active:'运行中 · 已连接', inactive:'已停止', failed:'已失败',
+  activating:'启动中…', loading:'连接中…', unknown:'未知'
+};
+let sshxPending=null, curSshxUrl='';
+
+function applySshxStatus(s){
+  const stEl=$('sshxState'), lab=$('sshxStateLabel'), lk=$('sshxLink'), badge=$('sshxBadge');
+  const st = s.active ? 'active' : (s.state||'inactive');
+  stEl.dataset.state = st;
+  lab.textContent = SSHX_STATE[st] || s.state || '未知';
+  curSshxUrl = s.url || '';
+  const copyBtn=$('sshxCopy'), gotoBtn=$('sshxGoto');
+  if(s.detail){ $('sshxDetailBody').textContent = s.detail; }
+  else { $('sshxDetailBody').textContent = '（无状态输出）'; }
+  if(curSshxUrl){
+    lk.textContent = curSshxUrl;
+    lk.href = curSshxUrl;
+    lk.classList.remove('empty');
+    badge.textContent = st==='active' ? '在线' : '离线';
+    copyBtn.disabled = false;
+    gotoBtn.disabled = false;
+  } else {
+    lk.textContent = s.active ? '正在生成访问地址…' : '服务未运行,暂无访问地址';
+    lk.href = '#';
+    lk.classList.add('empty');
+    badge.textContent = 'sshx.io';
+    copyBtn.disabled = true;
+    gotoBtn.disabled = true;
+  }
+  if(sshxPending){
+    if(Date.now()-sshxPending.ts > 90000){ sshxPending=null; }
+    else {
+      const la=s.lastAction;
+      if(la && la.op===sshxPending.op && la.ts*1000>=sshxPending.ts){
+        const name={start:'启动',stop:'停止',restart:'重启'}[la.op];
+        if(la.ok===false) toast('sshx '+name+'失败:'+(la.message||''),'err');
+        sshxPending=null;
+      }
+    }
+  }
+}
+
+async function refreshSshx(){
+  try{
+    const s = await api('/api/sshx/status');
+    applySshxStatus(s);
+  }catch(e){
+    $('sshxState').dataset.state='loading';
+    $('sshxStateLabel').textContent='后端未响应';
+  }
+}
+
+$('sshxCopy').addEventListener('click', async ()=>{
+  if(!curSshxUrl){ toast('暂无可用地址','err'); return; }
+  try{
+    await navigator.clipboard.writeText(curSshxUrl);
+    toast('访问地址已复制','ok');
+  }catch(e){
+    const ta=document.createElement('textarea');
+    ta.value=curSshxUrl; document.body.appendChild(ta); ta.select();
+    try{ document.execCommand('copy'); toast('访问地址已复制','ok'); }
+    catch(_){ toast('复制失败,请手动选择地址','err'); }
+    document.body.removeChild(ta);
+  }
+});
+
+$('sshxGoto').addEventListener('click', ()=>{
+  if(!curSshxUrl){ toast('暂无可用地址','err'); return; }
+  window.open(curSshxUrl, '_blank', 'noopener');
+});
+
+const sshxBusy={};
+document.querySelectorAll('.btn-mini[data-action]').forEach(btn=>{
+  btn.addEventListener('click', async ()=>{
+    const raw=btn.dataset.action;
+    const op=raw.split('-')[1];
+    if(sshxBusy[op]) return;
+    sshxBusy[op]=true;
+    btn.classList.add('loading'); btn.disabled=true;
+    const name={start:'启动',stop:'停止',restart:'重启'}[op];
+    try{
+      const r=await api('/api/sshx/'+op,'POST');
+      toast(r.message || ('sshx '+name+'完成'), r.ok?'ok':'err');
+      if(r.ok){ sshxPending={op, ts:Date.now()}; }
+    }catch(e){
+      toast('sshx '+name+'请求失败','err');
+    }finally{
+      setTimeout(()=>{ btn.classList.remove('loading'); btn.disabled=false; delete sshxBusy[op]; }, 600);
+      [800,2500,5000,10000,20000].forEach(t=>setTimeout(refreshSshx,t));
+    }
+  });
+});
+
+/* Detail toggle */
+$('detailHead').addEventListener('click', ()=>$('detail').classList.toggle('open'));
+$('sshxDetailHead').addEventListener('click', ()=>$('sshxDetail').classList.toggle('open'));
+
+/* Clock */
+function tickClock(){
+  const d=new Date();
+  const p=(n)=>String(n).padStart(2,'0');
+  $('clock').textContent = p(d.getHours())+':'+p(d.getMinutes())+':'+p(d.getSeconds());
+}
+setInterval(tickClock,1000); tickClock();
+
+/* Polling */
+refresh();
+refreshSshx();
+setInterval(refresh, 4000);
+setInterval(refreshSshx, 5000);
+
+/* ===== Canvas particle background ===== */
+(function(){
+  const c=$('bg'), x=c.getContext('2d');
+  let W,H,parts=[];
+  const COLORS=['#00e0ff','#8b5cf6','#c026d3','#7dd3fc','#a5b4fc'];
+  function resize(){
+    W=c.width=window.innerWidth*devicePixelRatio;
+    H=c.height=window.innerHeight*devicePixelRatio;
+    c.style.width=window.innerWidth+'px'; c.style.height=window.innerHeight+'px';
+    const count=Math.min(90, Math.floor(window.innerWidth/16));
+    parts=Array.from({length:count}, ()=>({
+      x:Math.random()*W, y:Math.random()*H,
+      r:(Math.random()*1.8+0.4)*devicePixelRatio,
+      vx:(Math.random()-0.5)*0.18*devicePixelRatio,
+      vy:-Math.random()*0.35*devicePixelRatio-0.05,
+      a:Math.random()*0.6+0.2,
+      tw:Math.random()*0.02+0.005,
+      ph:Math.random()*Math.PI*2,
+      col:COLORS[Math.floor(Math.random()*COLORS.length)]
+    }));
+  }
+  function draw(){
+    x.clearRect(0,0,W,H);
+    for(const p of parts){
+      p.x+=p.vx; p.y+=p.vy; p.ph+=p.tw;
+      if(p.y< -10){ p.y=H+10; p.x=Math.random()*W; }
+      if(p.x< -10) p.x=W+10; if(p.x>W+10) p.x=-10;
+      const a=p.a*(0.5+0.5*Math.sin(p.ph));
+      x.beginPath();
+      const g=x.createRadialGradient(p.x,p.y,0,p.x,p.y,p.r*4);
+      g.addColorStop(0,p.col); g.addColorStop(1,'transparent');
+      x.fillStyle=g; x.globalAlpha=a*0.5;
+      x.arc(p.x,p.y,p.r*4,0,Math.PI*2); x.fill();
+      x.globalAlpha=a; x.fillStyle=p.col;
+      x.beginPath(); x.arc(p.x,p.y,p.r,0,Math.PI*2); x.fill();
+    }
+    x.globalAlpha=1;
+    requestAnimationFrame(draw);
+  }
+  window.addEventListener('resize', resize);
+  resize(); draw();
+})();
+</script>
+</body>
+</html>

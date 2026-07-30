@@ -1,0 +1,16 @@
+[Unit]
+Description=sshx Web Terminal (collaborative shell via sshx.io)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+ExecStartPre=/bin/rm -f /run/sshx-url /run/sshx-url.err
+ExecStart=/usr/local/bin/sshx-hanhai.sh
+ExecStopPost=/bin/rm -f /run/sshx-url /run/sshx-url.err
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=15
+
+[Install]
+WantedBy=multi-user.target

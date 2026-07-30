@@ -1,0 +1,16 @@
+[Unit]
+Description=OpenCode Web Interface
+After=network.target mihomo.service
+Wants=mihomo.service
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/opencode serve --port 3210 --hostname 0.0.0.0
+WorkingDirectory=/root/opencode-work
+Restart=on-failure
+RestartSec=5
+Environment=ALL_PROXY=socks5://127.0.0.1:7890
+Environment=HTTP_PROXY=http://127.0.0.1:7890
+Environment=HTTPS_PROXY=http://127.0.0.1:7890
+LimitNOFILE=65536
+[Install]
+WantedBy=multi-user.target
